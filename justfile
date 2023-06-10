@@ -15,6 +15,7 @@ exec_ctr: (_ctr_cmd)
 build: (_ctr_cmd_full "build")
 release: (_ctr_cmd_full "build --release")
 check: (_ctr_cmd_full "check")
+fix: (_ctr_cmd_full "fix --allow-dirty") (_ctr_cmd_full "clippy")
 run: (_ctr_cmd_full "run")
 # container command
 _ctr_cmd cmd="":

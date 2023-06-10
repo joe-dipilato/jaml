@@ -1,1 +1,2 @@
 FROM rust AS base
+RUN rustup component add clippy
