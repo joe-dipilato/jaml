@@ -1,0 +1,25 @@
+ARG OSX_VERSION=10.11
+
+FROM alpine/git AS git
+WORKDIR /git
+RUN git clone https://github.com/tpoechtrager/osxcross
+
+FROM alpine/git AS wget
+WORKDIR /wget
+RUN wget -nc https://s3.dockerproject.org/darwin/v2/MacOSX${OSX_VERSION}.sdk.tar.xz
+
+FROM silkeh/clang AS clangbase
+RUN apt update && apt install -y git libssl-dev zlib1g-dev libmpc-dev libmpfr-dev libgmp-dev
+
+FROM clangbase AS clang
+COPY --from=git /git/osxcross /clang/osxcross
+COPY --from=wget /wget/MacOSX${OSX_VERSION}.sdk.tar.xz /clang/osxcross/tarballs/
+WORKDIR /clang/osxcross
+RUN UNATTENDED=yes OSX_VERSION_MIN=${OSX_VERSION} ./build.sh
+
+FROM rust AS base
+ENV CC=o64-clang
+ENV CXX=o64-clang++
+ENV LIBZ_SYS_STATIC=1
+RUN rustup target add x86_64-apple-darwin
+COPY --from=clang /clang/osxcross/target/bin /usr/local/bin
