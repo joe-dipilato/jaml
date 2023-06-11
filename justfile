@@ -16,12 +16,12 @@ build: (_ctr_cmd_full "build")
 release: (_ctr_cmd_full "build --release")
 check: (_ctr_cmd_full "check")
 fix: (_ctr_cmd_full "fix --allow-dirty") (_ctr_cmd_full "clippy")
-run: (_ctr_cmd_full "run")
+run args="": (_ctr_cmd_full "run" args)
 # container command
 _ctr_cmd cmd="":
     time docker run -it -v ${PWD}:/workspace -w /workspace {{default_container}} {{cmd}}
 # container command
-_ctr_cmd_full cmd="": (_ctr_cmd "cargo " + cmd + " --manifest-path " + project_name + "/Cargo.toml")
+_ctr_cmd_full cmd="" args="": (_ctr_cmd "cargo " + cmd + " --manifest-path " + project_name + "/Cargo.toml " + args )
 # One time init
 __init_cargo: (_ctr_cmd "cargo new " + project_name)
 # Clean the build directory
