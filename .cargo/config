@@ -5,4 +5,4 @@ ar = "x86_64-apple-darwin15-ar"
 [build]
 target-dir = "build"         # path of where to place all generated artifacts
 target = ["aarch64-unknown-linux-gnu"]
-#//# target = ["aarch64-unknown-linux-gnu", "x86_64-apple-darwin"]
+#//# target = ["aarch64-unknown-linux-gnu", "aarch64-apple-darwin"]
