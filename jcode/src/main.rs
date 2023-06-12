@@ -1,63 +1,39 @@
-use std::fs::File;
-use std::io::{self, BufRead};
-use std::path::Path;
-use std::env;
 
-#[derive(Debug)]
-#[derive(Clone)]
-struct Arguments {
-    filename: *mut Path
-}
-
-fn help_msg() {
-    // print the help message
-    let args: Vec<String> = env::args().collect();
-    let name = &args[0];
-    println!("Usage: {name} <PATH>");
-}
-
-fn parse_args() -> Arguments {
-    // parse the command line args
-    let args: Vec<String> = env::args().collect();
-
-    let argv = &args[1..];
-    if argv.len() == 0 {
-        println!("ERROR: Invalid arguments");
-        help_msg();
-        std::process::exit(exitcode::DATAERR);
-    }
-    println!("My path is {}.", args[0]);
-    println!("I got {:?} arguments: {:?}.", args.len() - 1, &args[1..]);
-    let filename = Path::new(&args[1].to_owned()).to_owned();
-    let result = Arguments { filename: &mut *filename.to_owned() };
-    return result.to_owned();
-}
+mod argparser;
 
 fn main() {
-    let args = parse_args(); 
-    println!("{args:#?}");
-    // let filename = *args.filename;
-    // println!("{filename}");
-    
-    // File hosts.txt must exist in the current path
-    if let Ok(lines) = read_lines("./hosts.txt") {
-        // Consumes the iterator, returns an (Optional) String
-        for line in lines {
-            if let Ok(ip) = line {
-                println!("{}", ip);
+    let args = argparser::parse_args();
+    println!("Value {args:?}");
+
+    // You can check the value provided by positional arguments, or option arguments
+    if let Some(name) = args.name.as_deref() {
+        println!("Value for name: {name}");
+    }
+
+    if let Some(config_path) = args.config.as_deref() {
+        println!("Value for config: {}", config_path.display());
+    }
+
+    // You can see how many times a particular flag or argument occurred
+    // Note, only flags can have multiple occurrences
+    match args.debug {
+        0 => println!("Debug mode is off"),
+        1 => println!("Debug mode is kind of on"),
+        2 => println!("Debug mode is on"),
+        _ => println!("Don't be crazy"),
+    }
+
+    // You can check for the existence of subcommands, and if found use their
+    // matches just as you would the top level cmd
+    match &args.command {
+        Some(argparser::Commands::Test { list }) => {
+            if *list {
+                println!("Printing testing lists...");
+            } else {
+                println!("Not printing testing lists...");
             }
         }
-    }
-    else
-    {
-        println!("dead");
-    }
-}
+        None => {}
+    };
 
-// The output is wrapped in a Result to allow matching on errors
-// Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where P: AsRef<Path>, {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
 }

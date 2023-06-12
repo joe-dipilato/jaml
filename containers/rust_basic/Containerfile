@@ -1,2 +1,7 @@
 FROM rust AS base
 RUN rustup component add clippy
+WORKDIR /fetch
+COPY jcode/Cargo.toml .
+COPY jcode/Cargo.lock .
+RUN cargo fetch
+RUN rm -rf /fetch
